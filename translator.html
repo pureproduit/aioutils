@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Translator – Free, 40+ Languages | AIoutils</title>
+  <meta name="description" content="Translate any text into 40+ languages with AI. More natural than Google Translate. Free, no signup required."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;700;800;900&family=Instrument+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/shared.css"/>
+</head>
+<body>
+
+<nav>
+  <a href="../index.html" class="logo">AI<span>outils</span></a>
+  <a href="../index.html" class="nav-back">← All tools</a>
+  <a href="../pricing.html" class="nav-pro">Go Pro</a>
+</nav>
+
+<div class="tool-page">
+  <div class="tool-header">
+    <span class="tool-icon-lg">🌐</span>
+    <h1 class="tool-title">AI Translator</h1>
+    <p class="tool-subtitle">Natural, nuanced translations in 40+ languages — not just word-for-word.</p>
+  </div>
+
+  <div class="usage-bar">
+    <span class="usage-label">Daily usage</span>
+    <span id="usage-count" class="usage-count ok">10 / 10 uses left today</span>
+    <a href="../pricing.html" class="upgrade-link">Upgrade for unlimited →</a>
+  </div>
+
+  <div class="input-group">
+    <label for="input-text">Text to translate</label>
+    <textarea id="input-text" placeholder="Type or paste your text here..."></textarea>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <div class="input-group">
+      <label for="from-lang">From</label>
+      <select id="from-lang">
+        <option value="auto" selected>Auto-detect</option>
+        <option value="English">English</option>
+        <option value="French">French</option>
+        <option value="Spanish">Spanish</option>
+        <option value="German">German</option>
+        <option value="Italian">Italian</option>
+        <option value="Portuguese">Portuguese</option>
+        <option value="Dutch">Dutch</option>
+        <option value="Russian">Russian</option>
+        <option value="Chinese">Chinese</option>
+        <option value="Japanese">Japanese</option>
+        <option value="Korean">Korean</option>
+        <option value="Arabic">Arabic</option>
+        <option value="Hindi">Hindi</option>
+        <option value="Turkish">Turkish</option>
+        <option value="Polish">Polish</option>
+        <option value="Swedish">Swedish</option>
+        <option value="Norwegian">Norwegian</option>
+        <option value="Danish">Danish</option>
+        <option value="Finnish">Finnish</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label for="to-lang">To</label>
+      <select id="to-lang">
+        <option value="French" selected>French</option>
+        <option value="English">English</option>
+        <option value="Spanish">Spanish</option>
+        <option value="German">German</option>
+        <option value="Italian">Italian</option>
+        <option value="Portuguese">Portuguese</option>
+        <option value="Dutch">Dutch</option>
+        <option value="Russian">Russian</option>
+        <option value="Chinese (Simplified)">Chinese (Simplified)</option>
+        <option value="Japanese">Japanese</option>
+        <option value="Korean">Korean</option>
+        <option value="Arabic">Arabic</option>
+        <option value="Hindi">Hindi</option>
+        <option value="Turkish">Turkish</option>
+        <option value="Polish">Polish</option>
+        <option value="Swedish">Swedish</option>
+        <option value="Norwegian">Norwegian</option>
+        <option value="Danish">Danish</option>
+        <option value="Finnish">Finnish</option>
+        <option value="Greek">Greek</option>
+        <option value="Hebrew">Hebrew</option>
+        <option value="Vietnamese">Vietnamese</option>
+        <option value="Thai">Thai</option>
+        <option value="Indonesian">Indonesian</option>
+        <option value="Malay">Malay</option>
+        <option value="Romanian">Romanian</option>
+        <option value="Hungarian">Hungarian</option>
+        <option value="Czech">Czech</option>
+        <option value="Ukrainian">Ukrainian</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="input-group">
+    <label for="tone">Translation tone</label>
+    <select id="tone">
+      <option value="natural">Natural (default)</option>
+      <option value="formal">Formal / Professional</option>
+      <option value="casual">Casual / Friendly</option>
+      <option value="literal">Literal (word for word)</option>
+    </select>
+  </div>
+
+  <button class="btn-generate" id="btn-generate" onclick="generate()">✨ Translate now</button>
+
+  <div class="loading-box" id="loading-box">
+    <div class="spinner"></div>
+    <div class="loading-text">Translating...</div>
+  </div>
+
+  <div class="error-box" id="error-box">Something went wrong. Please try again.</div>
+
+  <div class="limit-banner" id="limit-banner">
+    <h3>You've used all 10 free translations today 🎉</h3>
+    <p>Upgrade to Pro for unlimited translations, no ads, and access to all tools.</p>
+    <a href="../pricing.html" class="btn-upgrade">Upgrade to Pro — €12/month</a>
+  </div>
+
+  <div class="output-box" id="output-box">
+    <div class="output-header">
+      <span id="output-label">Translation</span>
+      <button class="btn-copy" id="btn-copy" onclick="copyResult()">Copy</button>
+    </div>
+    <div class="output-content" id="output-content"></div>
+  </div>
+</div>
+
+<footer>
+  <a href="../index.html">AIoutils</a>
+  <a href="../pricing.html">Pricing</a>
+  <a href="#">Privacy</a>
+  <a href="#">Terms</a>
+</footer>
+
+<script src="../js/shared.js"></script>
+<script>
+  let lastResult = '';
+
+  async function generate() {
+    const text = document.getElementById('input-text').value.trim();
+    if (!text) { alert('Please enter some text to translate.'); return; }
+
+    const remaining = getRemainingUses();
+    if (remaining <= 0) { show('limit-banner'); return; }
+
+    const fromLang = document.getElementById('from-lang').value;
+    const toLang = document.getElementById('to-lang').value;
+    const tone = document.getElementById('tone').value;
+
+    const toneInstructions = {
+      natural: 'Use natural, fluent language.',
+      formal: 'Use formal, professional language.',
+      casual: 'Use casual, friendly language.',
+      literal: 'Translate as literally as possible, word for word.'
+    };
+
+    const fromStr = fromLang === 'auto' ? 'the source language (auto-detect it)' : fromLang;
+    const prompt = `Translate the following text from ${fromStr} to ${toLang}. ${toneInstructions[tone]} Return only the translated text, nothing else.\n\nText:\n${text}`;
+
+    hide('output-box'); hide('error-box'); hide('limit-banner');
+    show('loading-box');
+    document.getElementById('btn-generate').disabled = true;
+
+    const response = await callAI(prompt);
+
+    hide('loading-box');
+    document.getElementById('btn-generate').disabled = false;
+    updateUsageBar();
+
+    if (response.error === 'limit') { show('limit-banner'); return; }
+    if (response.error) { show('error-box'); return; }
+
+    lastResult = response.result;
+    document.getElementById('output-label').textContent = 'Translation → ' + toLang;
+    document.getElementById('output-content').textContent = lastResult;
+    show('output-box');
+  }
+
+  function copyResult() { copyToClipboard(lastResult); }
+</script>
+</body>
+</html>
